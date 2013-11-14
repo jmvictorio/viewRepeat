@@ -14,7 +14,6 @@
     
     float longitud;
     float latitud;
-
 }
 
 - (IBAction)changePage:(id)sender;

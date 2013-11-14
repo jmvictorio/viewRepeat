@@ -10,11 +10,15 @@
 #import "ForecastKit.h"
 #import <AFNetworking.h>
 #import "Weather.h"
-
+#import "MRProgress.h"
+#import <AFNetworking/UIActivityIndicatorView+AFNetworking.h>
 
 @interface ViewController ()
 {
+    UIActivityIndicatorView *spinner;
     UIView *vistaScroll;
+    
+    NSMutableArray *week;
     
     UIView *first2;
     UILabel *date;
@@ -33,6 +37,11 @@
      UIImageView *iconDay3;
      UIImageView *iconDay4;
      UIImageView *iconDay5;
+    UILabel *day1;
+    UILabel *day2;
+    UILabel *day3;
+    UILabel *day4;
+    UILabel *day5;
      UILabel *infoMin1;
      UILabel *infoMin2;
      UILabel *infoMin3;
@@ -72,6 +81,13 @@
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    
+}
+
+
+
+- (void)gestionaLocalizacion:(UIView *)vistatemp{
+    
     self.locationManager = [[CLLocationManager alloc] init];
     
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
@@ -99,11 +115,6 @@
         longitud = -73.94;
     }
     
-    
-    // Lo mostramos en las etiquetas
-    //latitude.text = [NSString stringWithFormat:@"%0.8f",latitud];
-    //longitude.text = [NSString stringWithFormat:@"%0.8f",longitud];
-    
     //ForecastKit *forecast = [[ForecastKit alloc] initWithAPIKey:@"0b32c5e989fe10a2060dca536b5f76cc"];
     
     
@@ -119,10 +130,13 @@
      NSLog(@"Currently %@", error.description);
      
      }];*/
-    
+     NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@"minutely,hourly,flags,alerts", @"exclude", nil];
+    //NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@"currently", @"exclude", nil];
+
+    [spinner startAnimating];
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.responseSerializer = [AFJSONResponseSerializer serializer];
-    [manager GET:[NSString stringWithFormat:@"https://api.forecast.io/forecast/%@/%.6f,%.6f", @"0b32c5e989fe10a2060dca536b5f76cc", latitud, longitud] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [manager GET:[NSString stringWithFormat:@"https://api.forecast.io/forecast/%@/%.6f,%.6f", @"0b32c5e989fe10a2060dca536b5f76cc", latitud, longitud] parameters:dict success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //NSLog(@"%@", responseObject);
         icon=[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:0] objectForKey:@"icon"];
         [self chooseIcon:icon imagen:state];
@@ -133,7 +147,7 @@
         weather.icono4=[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:4] objectForKey:@"icon"];
         weather.icono5=[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:5] objectForKey:@"icon"];
         //[NSString ]
-       
+        
         weather.max1=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:1] objectForKey:@"apparentTemperatureMax"] intValue]];
         weather.max2=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:2] objectForKey:@"apparentTemperatureMax"] intValue]];
         weather.max3=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:3] objectForKey:@"apparentTemperatureMax"] intValue]];
@@ -145,40 +159,42 @@
         weather.min3=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:3] objectForKey:@"apparentTemperatureMin"]intValue]];
         weather.min4=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:4] objectForKey:@"apparentTemperatureMin"]intValue]];
         weather.min5=[[NSString alloc]initWithFormat:@"%d",[[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:5] objectForKey:@"apparentTemperatureMin"]intValue]];
+        
+        
+        
         [self chooseIcon:weather.icono1 imagen:iconDay1];
         [self chooseIcon:weather.icono2 imagen:iconDay2];
         [self chooseIcon:weather.icono3 imagen:iconDay3];
         [self chooseIcon:weather.icono4 imagen:iconDay4];
         [self chooseIcon:weather.icono5 imagen:iconDay5];
-        infoMin1.text=[[NSString alloc] initWithFormat:@"L: %@º",weather.min1];
-        infoMin2.text=[[NSString alloc] initWithFormat:@"L: %@º",weather.min2];
-        infoMin3.text=[[NSString alloc] initWithFormat:@"L: %@º",weather.min3];
-        infoMin4.text=[[NSString alloc] initWithFormat:@"L: %@º",weather.min4];
-        infoMin5.text=[[NSString alloc] initWithFormat:@"L: %@º",weather.min5];
+        infoMin1.text=[[NSString alloc] initWithFormat:@"L:  %@º",weather.min1];
+        infoMin2.text=[[NSString alloc] initWithFormat:@"L:  %@º",weather.min2];
+        infoMin3.text=[[NSString alloc] initWithFormat:@"L:  %@º",weather.min3];
+        infoMin4.text=[[NSString alloc] initWithFormat:@"L:  %@º",weather.min4];
+        infoMin5.text=[[NSString alloc] initWithFormat:@"L:  %@º",weather.min5];
         infoMax1.text=[[NSString alloc] initWithFormat:@"H: %@º",weather.max1];
         infoMax2.text=[[NSString alloc] initWithFormat:@"H: %@º",weather.max2];
         infoMax3.text=[[NSString alloc] initWithFormat:@"H: %@º",weather.max3];
         infoMax4.text=[[NSString alloc] initWithFormat:@"H: %@º",weather.max4];
         infoMax5.text=[[NSString alloc] initWithFormat:@"H: %@º",weather.max5];
         
+        day1.text=[week objectAtIndex:0];
+        day2.text=[week objectAtIndex:1];
+        day3.text=[week objectAtIndex:2];
+        day4.text=[week objectAtIndex:3];
+        day5.text=[week objectAtIndex:4];
         
-        
-        //NSLog(@"%@",weather.icono4);
+        //NSLog(@"%@",responseObject);
         temperature.text=[[NSString alloc] initWithFormat:@"%dº",[[[responseObject objectForKey:@"currently"] objectForKey:@"apparentTemperature"] intValue]];
         resume.text=[[NSString alloc] initWithFormat:@"%@",[[[[responseObject objectForKey:@"daily"] objectForKey:@"data"] objectAtIndex:0] objectForKey:@"summary"]];
-        //alerta=[[NSString alloc] initWithFormat:@"%@",[[[responseObject objectForKey:@"alerts"] objectAtIndex:0] objectForKey:@"title"]];
-       // NSLog(@"%@",temp);
-        //NSLog(@"%@",icono);
-        
-        //UIAlertView* mes=[[UIAlertView alloc] initWithTitle:@"ALERT!!" message:alerta delegate:self cancelButtonTitle:@"Ok" otherButtonTitles: nil];
-        
-        //[mes show];
-        
+       
+        [spinner stopAnimating];
+         timer=[NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(countup) userInfo:nil repeats:YES];
+        [vistatemp setHidden:YES];
     } failure:nil];
-    
-    
-    }
 
+    
+}
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
     
     // Si solo lo necesitamos una vez podemos dejar de actualizar las coordenadas aunque el usuario se mueva.
@@ -196,11 +212,57 @@
     
     
 }
-
+- (void) dameDias:(NSString *)Hoy{
+    week=[[NSMutableArray alloc]init];
+    if([Hoy isEqualToString:@"Mon"]){
+        [week addObject:@"Tue"];
+        [week addObject:@"Wed"];
+        [week addObject:@"Thu"];
+        [week addObject:@"Fri"];
+        [week addObject:@"Sat"];
+    }else if([Hoy isEqualToString:@"Tue"]){
+        [week addObject:@"Wed"];
+        [week addObject:@"Thu"];
+        [week addObject:@"Fri"];
+        [week addObject:@"Sat"];
+        [week addObject:@"Sun"];
+    }else if([Hoy isEqualToString:@"Wed"]){
+        [week addObject:@"Thu"];
+        [week addObject:@"Fri"];
+        [week addObject:@"Sat"];
+        [week addObject:@"Sun"];
+        [week addObject:@"Mon"];
+    }else if([Hoy isEqualToString:@"Thu"]){
+        [week addObject:@"Fri"];
+        [week addObject:@"Sat"];
+        [week addObject:@"Sun"];
+        [week addObject:@"Mon"];
+        [week addObject:@"Tue"];
+    }else if([Hoy isEqualToString:@"Fri"]){
+        [week addObject:@"Sat"];
+        [week addObject:@"Sun"];
+        [week addObject:@"Mon"];
+        [week addObject:@"Tue"];
+        [week addObject:@"Wed"];
+    }else if([Hoy isEqualToString:@"Sat"]){
+        [week addObject:@"Sun"];
+        [week addObject:@"Mon"];
+        [week addObject:@"Tue"];
+        [week addObject:@"Wed"];
+        [week addObject:@"Thu"];
+    }else{
+        [week addObject:@"Mon"];
+        [week addObject:@"Tue"];
+        [week addObject:@"Wed"];
+        [week addObject:@"Thu"];
+        [week addObject:@"Fri"];
+    }
+}
 - (void) setup2{
     primera=0;
     segunda=320;
-    tercera=640;
+    tercera=-320;
+    
     
     first2 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 130)];
     //DATES AND TIME
@@ -210,7 +272,10 @@
     NSString *fecha = [format stringFromDate:now];
     [format setDateFormat:@"hh:mm:ss a"];
     NSString *tiempo = [format stringFromDate:now];
-    
+    [format setDateFormat:@"EE"];
+    NSString *hoy=[format stringFromDate:now];
+    [self dameDias:hoy];
+    NSLog(@"%@",week);
     date=[[UILabel alloc]initWithFrame:CGRectMake(20, 20, 280, 38)];
     [date setTextAlignment:NSTextAlignmentCenter];
     date.text=fecha;
@@ -233,10 +298,12 @@
     temperature.font = [UIFont systemFontOfSize:40];
     temperature.adjustsFontSizeToFitWidth = YES;
     
-    resume=[[UILabel alloc]initWithFrame:CGRectMake(152, 89, 148, 21)];
+    resume=[[UILabel alloc]initWithFrame:CGRectMake(152, 75, 148, 40)];
     [resume setTextAlignment:NSTextAlignmentCenter];
+    [resume setNumberOfLines:2];
+    resume.font = [UIFont systemFontOfSize:15];
     resume.textColor=[UIColor whiteColor];
-    resume.adjustsFontSizeToFitWidth = YES;
+    //resume.adjustsFontSizeToFitWidth = YES;
     
     state=[[UIImageView alloc] init];
     [state setFrame:CGRectMake(20, 11, 124, 99)];
@@ -253,51 +320,73 @@
     iconDay3=[[UIImageView alloc] init];
     iconDay4=[[UIImageView alloc] init];
     iconDay5=[[UIImageView alloc] init];
-    [iconDay1 setFrame:CGRectMake(9, 31, 38, 44)];
-    [iconDay2 setFrame:CGRectMake(72, 31, 38, 44)];
-    [iconDay3 setFrame:CGRectMake(136, 31, 38, 44)];
-    [iconDay4 setFrame:CGRectMake(200, 31, 38, 44)];
-    [iconDay5 setFrame:CGRectMake(262, 31, 38, 44)];
+    [iconDay1 setFrame:CGRectMake(20, 25, 44, 44)];
+    [iconDay2 setFrame:CGRectMake(78, 25, 44, 44)];
+    [iconDay3 setFrame:CGRectMake(136, 25, 44, 44)];
+    [iconDay4 setFrame:CGRectMake(194, 25, 44, 44)];
+    [iconDay5 setFrame:CGRectMake(252, 25, 44, 44)];
     
-    infoMax1=[[UILabel alloc]initWithFrame:CGRectMake(12, 83, 42, 21)];
-    infoMax2=[[UILabel alloc]initWithFrame:CGRectMake(75, 83, 42, 21)];
-    infoMax3=[[UILabel alloc]initWithFrame:CGRectMake(139, 83, 42, 21)];
-    infoMax4=[[UILabel alloc]initWithFrame:CGRectMake(209, 83, 42, 21)];
-    infoMax5=[[UILabel alloc]initWithFrame:CGRectMake(265, 83, 42, 21)];
-    infoMin1=[[UILabel alloc]initWithFrame:CGRectMake(12, 102, 42, 21)];
-    infoMin2=[[UILabel alloc]initWithFrame:CGRectMake(75, 102, 42, 21)];
-    infoMin3=[[UILabel alloc]initWithFrame:CGRectMake(139, 102, 42, 21)];
-    infoMin4=[[UILabel alloc]initWithFrame:CGRectMake(209, 102, 42, 21)];
-    infoMin5=[[UILabel alloc]initWithFrame:CGRectMake(265, 102, 42, 21)];
+    day1=[[UILabel alloc]initWithFrame:CGRectMake(30, 3, 42, 21)];
+    day2=[[UILabel alloc]initWithFrame:CGRectMake(89, 3, 42, 21)];
+    day3=[[UILabel alloc]initWithFrame:CGRectMake(148, 3, 42, 21)];
+    day4=[[UILabel alloc]initWithFrame:CGRectMake(207, 3, 42, 21)];
+    day5=[[UILabel alloc]initWithFrame:CGRectMake(266, 3, 42, 21)];
     
-    infoMax1.font = [UIFont systemFontOfSize:10];
+    day1.font = [UIFont systemFontOfSize:13];
+    day1.adjustsFontSizeToFitWidth = YES;
+    day1.textColor=[UIColor whiteColor];
+    day2.font = [UIFont systemFontOfSize:13];
+    day2.adjustsFontSizeToFitWidth = YES;
+    day2.textColor=[UIColor whiteColor];
+    day3.font = [UIFont systemFontOfSize:13];
+    day3.adjustsFontSizeToFitWidth = YES;
+    day3.textColor=[UIColor whiteColor];
+    day4.font = [UIFont systemFontOfSize:13];
+    day4.adjustsFontSizeToFitWidth = YES;
+    day4.textColor=[UIColor whiteColor];
+    day5.font = [UIFont systemFontOfSize:13];
+    day5.adjustsFontSizeToFitWidth = YES;
+    day5.textColor=[UIColor whiteColor];
+    
+    infoMax1=[[UILabel alloc]initWithFrame:CGRectMake(21, 75, 42, 21)];
+    infoMax2=[[UILabel alloc]initWithFrame:CGRectMake(79, 75, 42, 21)];
+    infoMax3=[[UILabel alloc]initWithFrame:CGRectMake(137, 75, 42, 21)];
+    infoMax4=[[UILabel alloc]initWithFrame:CGRectMake(195, 75, 42, 21)];
+    infoMax5=[[UILabel alloc]initWithFrame:CGRectMake(253, 75, 42, 21)];
+    infoMin1=[[UILabel alloc]initWithFrame:CGRectMake(21, 94, 42, 21)];
+    infoMin2=[[UILabel alloc]initWithFrame:CGRectMake(79, 94, 42, 21)];
+    infoMin3=[[UILabel alloc]initWithFrame:CGRectMake(137, 94, 42, 21)];
+    infoMin4=[[UILabel alloc]initWithFrame:CGRectMake(195, 94, 42, 21)];
+    infoMin5=[[UILabel alloc]initWithFrame:CGRectMake(253, 94, 42, 21)];
+    
+    infoMax1.font = [UIFont systemFontOfSize:15];
     infoMax1.adjustsFontSizeToFitWidth = YES;
     infoMax1.textColor=[UIColor whiteColor];
-    infoMax2.font = [UIFont systemFontOfSize:10];
+    infoMax2.font = [UIFont systemFontOfSize:15];
     infoMax2.adjustsFontSizeToFitWidth = YES;
     infoMax2.textColor=[UIColor whiteColor];
-    infoMax3.font = [UIFont systemFontOfSize:10];
+    infoMax3.font = [UIFont systemFontOfSize:15];
     infoMax3.adjustsFontSizeToFitWidth = YES;
     infoMax3.textColor=[UIColor whiteColor];
-    infoMax4.font = [UIFont systemFontOfSize:10];
+    infoMax4.font = [UIFont systemFontOfSize:15];
     infoMax4.adjustsFontSizeToFitWidth = YES;
     infoMax4.textColor=[UIColor whiteColor];
-    infoMax5.font = [UIFont systemFontOfSize:10];
+    infoMax5.font = [UIFont systemFontOfSize:15];
     infoMax5.adjustsFontSizeToFitWidth = YES;
     infoMax5.textColor=[UIColor whiteColor];
-    infoMin1.font = [UIFont systemFontOfSize:10];
+    infoMin1.font = [UIFont systemFontOfSize:15];
     infoMin1.adjustsFontSizeToFitWidth = YES;
     infoMin1.textColor=[UIColor whiteColor];
-    infoMin2.font = [UIFont systemFontOfSize:10];
+    infoMin2.font = [UIFont systemFontOfSize:15];
     infoMin2.adjustsFontSizeToFitWidth = YES;
     infoMin2.textColor=[UIColor whiteColor];
-    infoMin3.font = [UIFont systemFontOfSize:10];
+    infoMin3.font = [UIFont systemFontOfSize:15];
     infoMin3.adjustsFontSizeToFitWidth = YES;
     infoMin3.textColor=[UIColor whiteColor];
-    infoMin4.font = [UIFont systemFontOfSize:10];
+    infoMin4.font = [UIFont systemFontOfSize:15];
     infoMin4.adjustsFontSizeToFitWidth = YES;
     infoMin4.textColor=[UIColor whiteColor];
-    infoMin5.font = [UIFont systemFontOfSize:10];
+    infoMin5.font = [UIFont systemFontOfSize:15];
     infoMin5.adjustsFontSizeToFitWidth = YES;
     infoMin5.textColor=[UIColor whiteColor];
     
@@ -316,6 +405,11 @@
     [third2 addSubview:infoMax3];
     [third2 addSubview:infoMax4];
     [third2 addSubview:infoMax5];
+    [third2 addSubview:day1];
+    [third2 addSubview:day2];
+    [third2 addSubview:day3];
+    [third2 addSubview:day4];
+    [third2 addSubview:day5];
     
     vistaScroll=[[UIView alloc]initWithFrame:CGRectMake(0, 20, 960, 170)];
     vistaScroll.backgroundColor=[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1.0];
@@ -354,13 +448,33 @@
     [vistaScroll addGestureRecognizer:dedo];
     [dedo addTarget:self action:@selector(handlePanGestureRecognizer:)];
     
+    spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle: UIActivityIndicatorViewStyleWhiteLarge];
+    
+    spinner.tintColor=[UIColor blackColor];
+    spinner.hidesWhenStopped = YES;
+    spinner.frame = CGRectMake(140, 50, spinner.bounds.size.height, spinner.bounds.size.width);
+    
+    [vistaScroll addSubview:spinner];
+    
+    UIView *vistatemp=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 320, 150)];
+    
+    [self.view addSubview:vistatemp];
+    [self gestionaLocalizacion:vistatemp];
+    
+    
+                       //dispatch back to the main (UI) thread to stop the activity indicator
+    
+    
+    //[MRProgressOverlayView showOverlayAddedTo:self.view animated:YES];
+    
+    
     
     ancho=0;
     contador=0;
     bandera=0;
     vuelta=0;
     paginaActual=0;
-    timer=[NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(countup) userInfo:nil repeats:YES];
+    
 }
 - (void)chooseIcon:(NSString *)icono imagen:(UIImageView *)imagen{
     if([icono isEqualToString:@"partly-cloudy-day"]){
@@ -397,13 +511,11 @@
 
 - (void)cambioDelante:(int)new actually:(int)actually{
     if(new==0){
-        //NSLog(@"PROBLEMA");
         [first2 setFrame:CGRectMake(primera, 0, 320, 130)];
         [scrollInbox setContentOffset:CGPointMake(primera, 0) animated:YES];
         tercera=(int)first2.frame.origin.x-320;
         segunda=(int)first2.frame.origin.x+320;
     }else{
-        //NSLog(@"PALANTE");
         if(new==1){
                 [second2 setFrame:CGRectMake(segunda, 0, 320, 130)];
                 [scrollInbox setContentOffset:CGPointMake(segunda, 0) animated:YES];
@@ -421,7 +533,6 @@
 }
 - (void)cambioAtras:(int)new actually:(int)actually{
     if(new==2){
-        //NSLog(@"PROBLEMA");
         tercera=(int)first2.frame.origin.x-320;
         [third2 setFrame:CGRectMake(tercera, 0, 320, 130)];
         [scrollInbox setContentOffset:CGPointMake(tercera, 0) animated:YES];
@@ -518,13 +629,16 @@
 		{
             
             if([pages currentPage]==0){
-                NSLog(@"Estas en primera pantalla %d, tercera esta en %d y segunda esta en %d", primera, tercera, segunda);
+                [third2 setFrame:CGRectMake(tercera, 0, 320, 130)];
+                [second2 setFrame:CGRectMake(segunda, 0, 320, 130)];
                 [scrollInbox setContentOffset:CGPointMake(primera-translation.x, 0)];
             }else if([pages currentPage]==1){
-                NSLog(@"Estas en segunda pantalla %d, primera esta en %d y tercera esta en %d", segunda, primera, tercera);
+                [first2 setFrame:CGRectMake(primera, 0, 320, 130)];
+                [third2 setFrame:CGRectMake(tercera, 0, 320, 130)];
                 [scrollInbox setContentOffset:CGPointMake(segunda-translation.x, 0)];
             }else{
-                NSLog(@"Estas en tercera pantalla %d, primera esta en %d y segunda esta en %d", tercera, primera, segunda);
+                [first2 setFrame:CGRectMake(primera, 0, 320, 130)];
+                [second2 setFrame:CGRectMake(segunda, 0, 320, 130)];
                 [scrollInbox setContentOffset:CGPointMake(tercera-translation.x, 0)];
             }
             
@@ -554,7 +668,13 @@
                 }
                 
             }else{
-                [scrollInbox setContentOffset:CGPointMake(scrollInbox.frame.origin.x, 0) animated:YES];
+                if([pages currentPage]==0){
+                    [scrollInbox setContentOffset:CGPointMake(primera, 0) animated:YES];
+                }else if([pages currentPage]==1){
+                    [scrollInbox setContentOffset:CGPointMake(segunda, 0) animated:YES];
+                }else{
+                    [scrollInbox setContentOffset:CGPointMake(tercera, 0) animated:YES];
+                }
             }
             timer=[NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(countup) userInfo:nil repeats:YES];
 		}

@@ -10,6 +10,11 @@
 
 @interface Weather : NSObject
 
+@property (nonatomic, strong) NSString *day1;
+@property (nonatomic, strong) NSString *day2;
+@property (nonatomic, strong) NSString *day3;
+@property (nonatomic, strong) NSString *day4;
+@property (nonatomic, strong) NSString *day5;
 @property (nonatomic, strong) NSString *icono1;
 @property (nonatomic, strong) NSString *max1;
 @property (nonatomic, strong) NSString *min1;
