@@ -12,6 +12,7 @@
 #import "Weather.h"
 #import "MRProgress.h"
 #import <AFNetworking/UIActivityIndicatorView+AFNetworking.h>
+#import "UIFont+PCUtils.h"
 
 @interface ViewController ()
 {
@@ -29,6 +30,8 @@
     NSString *icon;
     UILabel *temperature;
     UILabel *resume;
+    
+    NSDate *now;
     
     Weather *weather;
     UIView *third2;
@@ -59,6 +62,7 @@
     int tercera;
     int actual;
     NSTimer *timer;
+    NSTimer *timer2;
     int bandera;
     int contador;
     int ancho;
@@ -268,7 +272,7 @@
     //DATES AND TIME
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"MMM dd, yyyy"];
-    NSDate *now = [[NSDate alloc] init];
+    now = [[NSDate alloc] init];
     NSString *fecha = [format stringFromDate:now];
     [format setDateFormat:@"hh:mm:ss a"];
     NSString *tiempo = [format stringFromDate:now];
@@ -279,13 +283,15 @@
     date=[[UILabel alloc]initWithFrame:CGRectMake(20, 20, 280, 38)];
     [date setTextAlignment:NSTextAlignmentCenter];
     date.text=fecha;
+    date.font=[UIFont PCFontWithSize:17.0f];
     date.textColor=[UIColor whiteColor];
     
     time=[[UILabel alloc]initWithFrame:CGRectMake(20, 60, 280, 38)];
     [time setTextAlignment:NSTextAlignmentCenter];
     time.text=tiempo;
     time.textColor=[UIColor whiteColor];
-    time.font = [UIFont systemFontOfSize:30];
+    time.font=[UIFont PCFontWithSize:30.0f];
+    timer2=[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(countup2) userInfo:nil repeats:YES];
     
     [first2 addSubview:date];
     [first2 addSubview:time];
@@ -295,18 +301,18 @@
     temperature=[[UILabel alloc]initWithFrame:CGRectMake(179, 11, 95, 75)];
     [temperature setTextAlignment:NSTextAlignmentCenter];
     temperature.textColor=[UIColor whiteColor];
-    temperature.font = [UIFont systemFontOfSize:40];
+    temperature.font=[UIFont PCFontWithSize:40.0f];
     temperature.adjustsFontSizeToFitWidth = YES;
     
     resume=[[UILabel alloc]initWithFrame:CGRectMake(152, 75, 148, 40)];
     [resume setTextAlignment:NSTextAlignmentCenter];
     [resume setNumberOfLines:2];
-    resume.font = [UIFont systemFontOfSize:15];
+    resume.font=[UIFont PCFontWithSize:15.0f];
     resume.textColor=[UIColor whiteColor];
     //resume.adjustsFontSizeToFitWidth = YES;
     
     state=[[UIImageView alloc] init];
-    [state setFrame:CGRectMake(20, 11, 124, 99)];
+    [state setFrame:CGRectMake(20, 11, 100, 100)];
     [second2 addSubview:temperature];
     [second2 addSubview:resume];
     [second2 addSubview:state];
@@ -332,19 +338,19 @@
     day4=[[UILabel alloc]initWithFrame:CGRectMake(207, 3, 42, 21)];
     day5=[[UILabel alloc]initWithFrame:CGRectMake(266, 3, 42, 21)];
     
-    day1.font = [UIFont systemFontOfSize:13];
+    day1.font=[UIFont PCFontWithSize:13.0f];
     day1.adjustsFontSizeToFitWidth = YES;
     day1.textColor=[UIColor whiteColor];
-    day2.font = [UIFont systemFontOfSize:13];
+    day2.font=[UIFont PCFontWithSize:13.0f];
     day2.adjustsFontSizeToFitWidth = YES;
     day2.textColor=[UIColor whiteColor];
-    day3.font = [UIFont systemFontOfSize:13];
+    day3.font=[UIFont PCFontWithSize:13.0f];
     day3.adjustsFontSizeToFitWidth = YES;
     day3.textColor=[UIColor whiteColor];
-    day4.font = [UIFont systemFontOfSize:13];
+    day4.font=[UIFont PCFontWithSize:13.0f];
     day4.adjustsFontSizeToFitWidth = YES;
     day4.textColor=[UIColor whiteColor];
-    day5.font = [UIFont systemFontOfSize:13];
+    day5.font=[UIFont PCFontWithSize:13.0f];
     day5.adjustsFontSizeToFitWidth = YES;
     day5.textColor=[UIColor whiteColor];
     
@@ -359,34 +365,34 @@
     infoMin4=[[UILabel alloc]initWithFrame:CGRectMake(195, 94, 42, 21)];
     infoMin5=[[UILabel alloc]initWithFrame:CGRectMake(253, 94, 42, 21)];
     
-    infoMax1.font = [UIFont systemFontOfSize:15];
+    infoMax1.font=[UIFont PCFontWithSize:15.0f];
     infoMax1.adjustsFontSizeToFitWidth = YES;
     infoMax1.textColor=[UIColor whiteColor];
-    infoMax2.font = [UIFont systemFontOfSize:15];
+    infoMax2.font=[UIFont PCFontWithSize:15.0f];
     infoMax2.adjustsFontSizeToFitWidth = YES;
     infoMax2.textColor=[UIColor whiteColor];
-    infoMax3.font = [UIFont systemFontOfSize:15];
+    infoMax3.font=[UIFont PCFontWithSize:15.0f];
     infoMax3.adjustsFontSizeToFitWidth = YES;
     infoMax3.textColor=[UIColor whiteColor];
-    infoMax4.font = [UIFont systemFontOfSize:15];
+    infoMax4.font=[UIFont PCFontWithSize:15.0f];
     infoMax4.adjustsFontSizeToFitWidth = YES;
     infoMax4.textColor=[UIColor whiteColor];
-    infoMax5.font = [UIFont systemFontOfSize:15];
+    infoMax5.font=[UIFont PCFontWithSize:15.0f];
     infoMax5.adjustsFontSizeToFitWidth = YES;
     infoMax5.textColor=[UIColor whiteColor];
-    infoMin1.font = [UIFont systemFontOfSize:15];
+    infoMin1.font=[UIFont PCFontWithSize:15.0f];
     infoMin1.adjustsFontSizeToFitWidth = YES;
     infoMin1.textColor=[UIColor whiteColor];
-    infoMin2.font = [UIFont systemFontOfSize:15];
+    infoMin2.font=[UIFont PCFontWithSize:15.0f];
     infoMin2.adjustsFontSizeToFitWidth = YES;
     infoMin2.textColor=[UIColor whiteColor];
-    infoMin3.font = [UIFont systemFontOfSize:15];
+    infoMin3.font=[UIFont PCFontWithSize:15.0f];
     infoMin3.adjustsFontSizeToFitWidth = YES;
     infoMin3.textColor=[UIColor whiteColor];
-    infoMin4.font = [UIFont systemFontOfSize:15];
+    infoMin4.font=[UIFont PCFontWithSize:15.0f];
     infoMin4.adjustsFontSizeToFitWidth = YES;
     infoMin4.textColor=[UIColor whiteColor];
-    infoMin5.font = [UIFont systemFontOfSize:15];
+    infoMin5.font=[UIFont PCFontWithSize:15.0f];
     infoMin5.adjustsFontSizeToFitWidth = YES;
     infoMin5.textColor=[UIColor whiteColor];
     
@@ -484,14 +490,41 @@
     }else if([icono isEqualToString:@"partly-cloudy-night"]){
         //NSLog(@"ENTRAAA2");
         [imagen setImage:[UIImage imageNamed:@"partly-cloudy-night.png"]];
-
+        
     }else if([icono isEqualToString:@"clear-day"]){
         [imagen setImage:[UIImage imageNamed:@"clear-day.png"]];
         
     }else if([icono isEqualToString:@"rain"]){
         [imagen setImage:[UIImage imageNamed:@"rain.png"]];
         
+    }else if([icono isEqualToString:@"fog"]){
+        //NSLog(@"ENTRAAA2");
+        [imagen setImage:[UIImage imageNamed:@"fog.png"]];
+        
+    }else if([icono isEqualToString:@"sleet"]){
+        [imagen setImage:[UIImage imageNamed:@"sleey.png"]];
+        
+    }else if([icono isEqualToString:@"wind"]){
+        [imagen setImage:[UIImage imageNamed:@"wind.png"]];
+        
+    }else if([icono isEqualToString:@"snow"]){
+        //NSLog(@"ENTRAAA2");
+        [imagen setImage:[UIImage imageNamed:@"snow.png"]];
+        
+    }else if([icono isEqualToString:@"cloudy"]){
+        [imagen setImage:[UIImage imageNamed:@"cloudy.png"]];
+        
+    }else if([icono isEqualToString:@"clear-night"]){
+        [imagen setImage:[UIImage imageNamed:@"clear-night.png"]];
+        
     }
+}
+- (void)countup2{
+    now = [[NSDate alloc] init];
+    NSDateFormatter *format = [[NSDateFormatter alloc] init];
+    [format setDateFormat:@"hh:mm:ss a"];
+    NSString *tiempo = [format stringFromDate:now];
+    time.text=tiempo;
 }
 - (void)countup{
     if(paginaActual==0){
